@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang=""> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" lang=""> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9" lang=""> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js" lang="zh-Hans-CN">
+<!--<![endif]-->
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title></title>
+    <meta name="description" content="博客 笑沧海">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+    <link rel="stylesheet" href="css/normalize.min.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/editormd.css" />
+    <link rel="stylesheet" href="css/blog-editor.css" />
+    <!--[if lt IE 9]>
+                <script src="js/vendor/html5-3.6-respond-1.4.2.min.js"></script>
+            <![endif]-->
+</head>
+
+<body>
+    <div id="doc-content">
+        <textarea style="display:none;" id="blog"></textarea>
+    </div>
+
+
+    <script src="js/vendor/jquery-1.11.2.min.js"></script>
+    <script src="js/lib/mdeditor/marked.min.js"></script>
+    <script src="js/lib/mdeditor/prettify.min.js"></script>
+    <script src="js/lib/mdeditor/raphael.min.js"></script>
+    <script src="js/lib/mdeditor/underscore.min.js"></script>
+    <script src="js/lib/mdeditor/sequence-diagram.min.js"></script>
+    <script src="js/lib/mdeditor/flowchart.min.js"></script>
+    <script src="js/lib/mdeditor/jquery.flowchart.min.js"></script>
+    <script src="js/lib/mdeditor/editormd.min.js"></script>
+    <script src="js/constants.js"></script>
+    <script type="text/javascript">
+        var blog = "";
+        var testEditor;
+        // 获取url中的参数
+        function getUrlParam(name) {
+            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象
+            var r = window.location.search.substr(1).match(reg); //匹配目标参数
+            if (r != null) return unescape(r[2]);
+            return null; //返回参数值
+        }
+
+        $(document).ready(function () {
+            var blogId = getUrlParam('blogId');
+            if (blogId == null) {
+                window.location.href = './blog-list.html';
+            } else {
+                // 加载博客
+                var aj = $.ajax({
+                    type: 'GET',
+                    url: queryBlogUrl + '/' + blogId,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.code == '000000') {
+                            blog = data.data;
+                            $('title').html(data.blogTitle);
+                            $('#blog').val(blog.blogContent);
+                            parseMarkdown();
+                        } else {
+                            alert(data.msg);
+                            window.location.href = './blog-list.html';
+                        }
+                    },
+                    error: function () {
+                        alert("访问博客出错,请稍后再试！");
+                        window.location.href = './blog-list.html';
+                    }
+                });
+            }
+        });
+
+        function parseMarkdown() {
+            var widgets = [];
+            testEditor = editormd.markdownToHTML("doc-content", { //注意：这里是上面DIV的id
+                htmlDecode: "style,script,iframe",
+                emoji: true,
+                taskList: true,
+                tex: false, // 默认不解析
+                flowChart: true, // 默认不解析
+                sequenceDiagram: true, // 默认不解析
+                codeFold: true,
+            });
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang=""> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" lang=""> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9" lang=""> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js" lang="zh-Hans-CN">
+<!--<![endif]-->
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Custom keyboard shortcuts - Editor.md examples</title>
+    <meta name="description" content="博客 笑沧海">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+    <link rel="stylesheet" href="css/normalize.min.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/editormd.css" />
+    <link rel="stylesheet" href="css/blog-editor.css" />
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+        crossorigin="anonymous">
+    <!--[if lt IE 9]>
+                <script src="js/vendor/html5-3.6-respond-1.4.2.min.js"></script>
+            <![endif]-->
+</head>
+
+<body>
+    <div id="layout">
+        <div class="editormd-vertical" style="width: 90%;">
+            <input type="text" id="blog-title" placeholder="标题" />
+        </div>
+        <div id="test-editormd">
+            <textarea id="my-editormd-markdown-doc" name="my-editormd-markdown-doc" style="display:none;"></textarea>
+            <textarea id="my-editormd-html-code" name="my-editormd-html-code" style="display:none;"></textarea>
+        </div>
+        <div id="button-blog">
+            <button type="button" class="btn btn-primary btn-lg" id="saveBtn">保存</button>
+            <button type="button" class="btn btn-primary btn-lg" id="canelBtn">取消</button>
+        </div>
+    </div>
+    <script src="js/vendor/jquery-1.11.2.min.js"></script>
+    <script src="js/lib/mdeditor/editormd.js"></script>
+    <script src="js/constants.js"></script>
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        var blogId = "";
+        var testEditor;
+
+        function saveBlog() {
+            if (blogId === "") {
+                // 保存博客
+                var aj = $.ajax({
+                    type: 'POST',
+                    url: saveBlogUrl,
+                    contentType: "application/json; charset=utf-8",
+
+                    data: JSON.stringify({
+                        title: $('#blog-title').val(),
+                        content: $('#my-editormd-markdown-doc').val(),
+                    }),
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.code == '000000') {
+                            blogId = data.data;
+                            alert("新建博客成功！");
+                        } else {
+                            alert(data.msg);
+                        }
+                    },
+                    error: function () {
+                        alert("异常！");
+                    }
+                });
+            } else {
+                // 更新博客
+                var aj = $.ajax({
+                    url: updateBlogUrl,
+                    contentType: "application/json; charset=utf-8",
+                    type: 'post',
+                    data: JSON.stringify({
+                        blogId: blogId,
+                        title: $('#blog-title').val(),
+                        content: $('#my-editormd-markdown-doc').val(),
+                    }),
+                    cache: false,
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.code == '000000') {
+                            alert("修改博客成功！");
+                        } else {
+                            alert(data.msg);
+                        }
+                    },
+                    error: function () {
+                        alert("异常！");
+                    }
+                });
+            }
+        }
+
+        $(function () {
+            var widgets = [];
+
+            testEditor = editormd("test-editormd", {
+                width: "90%",
+                height: 720,
+                path: './js/lib/mdeditor/',
+                //方便post提交表单
+                saveHTMLToTextarea: true,
+                /**上传图片相关配置如下*/
+                imageUpload: true,
+                imageFormats: ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
+                imageUploadURL: imageUploadUrl,
+                onload: function () {
+                    $('#blog-title').focus();
+                    // 绑定按钮监听事件
+                    $('#saveBtn').click(function () {
+                        saveBlog();
+                    });
+                    $('#canelBtn').click(function () {
+                        // $('#blog-title').val('');
+                        // $('#my-editormd-markdown-doc').val('');
+                        window.location.reload();
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
