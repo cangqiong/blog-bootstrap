@@ -64,7 +64,7 @@
                     success: function (data) {
                         if (data.code == '000000') {
                             blog = data.data;
-                            $('title').html(data.blogTitle);
+                            $('title').html(blog.blogTitle);
                             $('#blog').val(blog.blogContent);
                             parseMarkdown();
                         } else {
