@@ -54,9 +54,7 @@
             <article id="blog-list">
                 <header v-for="blog in items">
                     <a v-bind:href="getBlogHref(blog.blogId)">
-                        <h1>
-                            {{ blog.blogTitle }}
-                        </h1>
+                        <h1> {{blog.blogTitle}} </h1>
                     </a>
                 </header>
                 <div id="loadMore" v-on:click="loadMore()">
@@ -91,9 +89,9 @@
     </footer>
     <!-- end footer -->
 
-    <script src="js/vendor/jquery-1.11.2.min.js"></script>
+    <script src="http://apps.bdimg.com/libs/jquery/1.11.3/jquery.min.js"></script>
     <script src="js/main.js"></script>
-    <script src="js/constants.js"></script>
+    <!-- <script src="js/constants.js"></script> -->
     <script src="https://unpkg.com/vue@2.5.8/dist/vue.js"></script>
     <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
         crossorigin="anonymous"></script>
@@ -107,6 +105,14 @@
         var blogList = [];
         var count = '';
         $(document).ready(function () {
+                // 设置允许跨域
+            $.ajaxSetup({ // headers: { 'x-requested-with': 'XMLHttpRequest' }
+                crossDomain: true,
+                xhrFields: {
+                    withCredentials: true
+                }
+            });
+
             blogListVue = new Vue({
                 el: '#blog-list',
                 data: {
@@ -119,16 +125,16 @@
                     loadMore: function () {
                         if (pageReq.pageNum * pageReq.pageSize < count) {
                             pageReq.pageSize += 10;
-                            loadBlogList(pageReq)
+                            loadBlogList();
                         }
                     }
                 }
-            })
+            });
             // 加载博客列表
-            loadBlogList(pageReq);
+            loadBlogList();
         });
 
-        function loadBlogList(pageReq) {
+        function loadBlogList() {
             $.ajax({
                 type: 'GET',
                 url: queryBlogListUrl + '?pageNum=' + pageReq.pageNum + '&pageSize=' + pageReq.pageSize,
@@ -137,7 +143,7 @@
                 success: function (data) {
                     if (data.code == '000000') {
                         blogList = data.data.records;
-                        blogListVue.items = blogList
+                        blogListVue.items = data.data.records
                         count = data.data.count
                     } else {
                         alert(data.msg);
