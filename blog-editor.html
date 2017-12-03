@@ -49,7 +49,6 @@
     <script type="text/javascript">
         var blogId = "";
         var testEditor;
-
         $(function () {
             var widgets = [];
 
@@ -62,7 +61,7 @@
                 /**上传图片相关配置如下*/
                 imageUpload: true,
                 imageFormats: ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
-                imageUploadURL: imageUploadUrl,
+                imageUploadURL:  "http://www.xiaocanghai.com/image/upload",
                 onload: function () {
                     $('#blog-title').focus();
                     // 绑定按钮监听事件
